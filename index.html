@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>보관요금 계산기(카드)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    label, input, select {
+      margin: 10px 0;
+      display: block;
+    }
+    p {
+      font-size: 1.2em;
+      color: #555;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 언어 선택 -->
+  <label for="language">언어 선택 (Language):</label>
+  <select id="language">
+    <option value="ko">한국어 (Korean)</option>
+    <option value="en">English</option>
+    <option value="ja">日本語 (Japanese)</option>
+    <option value="zh">中文 (Chinese)</option>
+  </select>
+
+  <h1 id="title">보관요금 계산기(카드)</h1>
+
+  <!-- 사이즈 섹션 -->
+  <div id="sizes"></div>
+
+  <!-- 결과 -->
+  <p id="result-label">총 보관 요금: <span id="result">0.00$</span></p>
+
+  <script>
+    const prices = {
+      S: [7.30, 10.00, 15.25, 20.50, 25.75, 31.00, 3.10],
+      M: [8.40, 11.50, 17.50, 23.50, 29.50, 35.50, 3.70],
+      L: [10.40, 14.50, 22.00, 29.50, 37.00, 44.50, 4.50],
+      XL: [12.90, 17.50, 26.50, 35.50, 44.50, 53.50, 5.50],
+    };
+
+    const translations = {
+      ko: {
+        title: "보관요금 계산기(카드)",
+        resultLabel: "총 보관 요금:",
+        sizes: ["S 사이즈", "M 사이즈", "L 사이즈", "XL 사이즈"],
+        daysLabel: "보관 기간 (일):",
+        quantityLabel: "수량:",
+      },
+      en: {
+        title: "Storage Fee Calculator(카드)",
+        resultLabel: "Total Storage Fee:",
+        sizes: ["Size S", "Size M", "Size L", "Size XL"],
+        daysLabel: "Storage Period (Days):",
+        quantityLabel: "Quantity:",
+      },
+      ja: {
+        title: "保管料金計算機(카드)",
+        resultLabel: "合計保管料金:",
+        sizes: ["S サイズ", "M サイズ", "L サイズ", "XL サイズ"],
+        daysLabel: "保管期間 (日):",
+        quantityLabel: "数量:",
+      },
+      zh: {
+        title: "保管费用计算器(카드)",
+        resultLabel: "总保管费用:",
+        sizes: ["S 尺寸", "M 尺寸", "L 尺寸", "XL 尺寸"],
+        daysLabel: "保管期限 (天):",
+        quantityLabel: "数量:",
+      },
+    };
+
+    function changeLanguage() {
+      const lang = document.getElementById("language").value;
+      const texts = translations[lang];
+
+      document.getElementById("title").textContent = texts.title;
+      document.getElementById("result-label").textContent = texts.resultLabel;
+
+      const sizesContainer = document.getElementById("sizes");
+      sizesContainer.innerHTML = "";
+
+      ["S", "M", "L", "XL"].forEach((size, index) => {
+        const section = document.createElement("div");
+        section.className = "section";
+        section.innerHTML = `
+          <h2>${texts.sizes[index]}</h2>
+          <label>${texts.daysLabel}</label>
+          <select id="days${size}">
+            ${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}">${i + 1} Days</option>`).join("")}
+          </select>
+          <label>${texts.quantityLabel}</label>
+          <input type="number" id="quantity${size}" min="0" value="0">
+        `;
+        sizesContainer.appendChild(section);
+      });
+    }
+
+    function calculateTotal() {
+      let total = 0;
+
+      ["S", "M", "L", "XL"].forEach(size => {
+        const days = parseInt(document.getElementById(`days${size}`).value) || 0;
+        const quantity = parseInt(document.getElementById(`quantity${size}`).value) || 0;
+
+        if (days > 0 && days <= 6) {
+          total += prices[size][days - 1] * quantity;
+        } else if (days >= 7) {
+          total += prices[size][6] * days * quantity;
+        }
+      });
+
+      document.getElementById("result").textContent = `${total.toFixed(2)}$`;
+    }
+
+    document.getElementById("language").addEventListener("change", changeLanguage);
+    document.addEventListener("change", calculateTotal);
+
+    changeLanguage();
+  </script>
+</body>
+</html>
