@@ -60,21 +60,21 @@
         quantityLabel: "수량:",
       },
       en: {
-        title: "Storage Fee Calculator(카드)",
+        title: "Storage Fee Calculator(Card)",
         resultLabel: "Total Storage Fee:",
         sizes: ["Size S", "Size M", "Size L", "Size XL"],
         daysLabel: "Storage Period (Days):",
         quantityLabel: "Quantity:",
       },
       ja: {
-        title: "保管料金計算機(카드)",
+        title: "保管料金計算機(カード)",
         resultLabel: "合計保管料金:",
         sizes: ["S サイズ", "M サイズ", "L サイズ", "XL サイズ"],
         daysLabel: "保管期間 (日):",
         quantityLabel: "数量:",
       },
       zh: {
-        title: "保管费用计算器(카드)",
+        title: "保管费用计算器(卡)",
         resultLabel: "总保管费用:",
         sizes: ["S 尺寸", "M 尺寸", "L 尺寸", "XL 尺寸"],
         daysLabel: "保管期限 (天):",
@@ -106,6 +106,12 @@
         `;
         sizesContainer.appendChild(section);
       });
+
+      // 각 요소에 이벤트 리스너 추가
+      ["S", "M", "L", "XL"].forEach(size => {
+        document.getElementById(`days${size}`).addEventListener("change", calculateTotal);
+        document.getElementById(`quantity${size}`).addEventListener("input", calculateTotal);
+      });
     }
 
     function calculateTotal() {
@@ -126,8 +132,6 @@
     }
 
     document.getElementById("language").addEventListener("change", changeLanguage);
-    document.addEventListener("change", calculateTotal);
-
     changeLanguage();
   </script>
 </body>
