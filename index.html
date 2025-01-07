@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storage Fee Calculator</title>
+    <title>Multi-Item Storage Fee Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        label, select, input {
-            margin: 10px 0;
-            display: block;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
         }
-        button {
-            margin-top: 10px;
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
         }
         .result {
             margin-top: 20px;
@@ -23,21 +29,40 @@
     </style>
 </head>
 <body>
-    <h1>Storage Fee Calculator</h1>
+    <h1>Multi-Item Storage Fee Calculator</h1>
     <form id="calculator-form">
-        <label for="size">Select Size:</label>
-        <select id="size" required>
-            <option value="" disabled selected>Select size</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-        </select>
-
-        <label for="days">Enter Number of Days:</label>
-        <input type="number" id="days" min="1" required>
-
-        <button type="button" onclick="calculateFee()">Calculate</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Size</th>
+                    <th>Quantity</th>
+                    <th>Number of Days</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>S</td>
+                    <td><input type="number" id="quantity-S" min="0" value="0"></td>
+                    <td><input type="number" id="days-S" min="0" value="0"></td>
+                </tr>
+                <tr>
+                    <td>M</td>
+                    <td><input type="number" id="quantity-M" min="0" value="0"></td>
+                    <td><input type="number" id="days-M" min="0" value="0"></td>
+                </tr>
+                <tr>
+                    <td>L</td>
+                    <td><input type="number" id="quantity-L" min="0" value="0"></td>
+                    <td><input type="number" id="days-L" min="0" value="0"></td>
+                </tr>
+                <tr>
+                    <td>XL</td>
+                    <td><input type="number" id="quantity-XL" min="0" value="0"></td>
+                    <td><input type="number" id="days-XL" min="0" value="0"></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" onclick="calculateTotal()">Calculate Total</button>
     </form>
 
     <div class="result" id="result"></div>
@@ -57,25 +82,32 @@
             "XL": 6.40
         };
 
-        function calculateFee() {
-            const size = document.getElementById('size').value;
-            const days = parseInt(document.getElementById('days').value);
-            const resultDiv = document.getElementById('result');
+        function calculateFee(size, quantity, days) {
+            if (days <= 0 || quantity <= 0) return 0;
 
-            if (!size || !days || days <= 0) {
-                resultDiv.textContent = "Please enter valid size and number of days.";
-                return;
-            }
-
-            let totalCost = 0;
+            let costPerItem = 0;
 
             if (days <= 6) {
-                totalCost = shortTermRates[size][days - 1];
+                costPerItem = shortTermRates[size][days - 1];
             } else {
-                totalCost = dailyRate[size] * days;
+                costPerItem = dailyRate[size] * days;
             }
 
-            resultDiv.textContent = `Total Cost for ${days} day(s) (${size} size): $${totalCost.toFixed(2)}`;
+            return costPerItem * quantity;
+        }
+
+        function calculateTotal() {
+            const sizes = ["S", "M", "L", "XL"];
+            let totalCost = 0;
+
+            sizes.forEach(size => {
+                const quantity = parseInt(document.getElementById(`quantity-${size}`).value) || 0;
+                const days = parseInt(document.getElementById(`days-${size}`).value) || 0;
+
+                totalCost += calculateFee(size, quantity, days);
+            });
+
+            document.getElementById('result').textContent = `Total Cost: $${totalCost.toFixed(2)}`;
         }
     </script>
 </body>
