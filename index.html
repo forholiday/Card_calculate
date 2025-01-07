@@ -1,138 +1,82 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>보관요금 계산기(카드)</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    h1 {
-      color: #333;
-    }
-    label, input, select {
-      margin: 10px 0;
-      display: block;
-    }
-    p {
-      font-size: 1.2em;
-      color: #555;
-    }
-    .section {
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Fee Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label, select, input {
+            margin: 10px 0;
+            display: block;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <!-- 언어 선택 -->
-  <label for="language">언어 선택 (Language):</label>
-  <select id="language">
-    <option value="ko">한국어 (Korean)</option>
-    <option value="en">English</option>
-    <option value="ja">日本語 (Japanese)</option>
-    <option value="zh">中文 (Chinese)</option>
-  </select>
+    <h1>Storage Fee Calculator</h1>
+    <form id="calculator-form">
+        <label for="size">Select Size:</label>
+        <select id="size" required>
+            <option value="" disabled selected>Select size</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+        </select>
 
-  <h1 id="title">보관요금 계산기(카드)</h1>
+        <label for="days">Enter Number of Days:</label>
+        <input type="number" id="days" min="1" required>
 
-  <!-- 사이즈 섹션 -->
-  <div id="sizes"></div>
+        <button type="button" onclick="calculateFee()">Calculate</button>
+    </form>
 
-  <!-- 결과 -->
-  <p id="result-label">총 보관 요금: <span id="result">0.00$</span></p>
+    <div class="result" id="result"></div>
 
-  <script>
-    const prices = {
-      S: [7.30, 10.00, 15.25, 20.50, 25.75, 31.00, 3.10],
-      M: [8.40, 11.50, 17.50, 23.50, 29.50, 35.50, 3.70],
-      L: [10.40, 14.50, 22.00, 29.50, 37.00, 44.50, 4.50],
-      XL: [12.90, 17.50, 26.50, 35.50, 44.50, 53.50, 5.50],
-    };
+    <script>
+        const shortTermRates = {
+            "S": [7.30, 10.00, 15.25, 20.50, 25.75, 31.00],
+            "M": [8.40, 11.50, 17.50, 23.50, 29.50, 35.50],
+            "L": [10.40, 14.50, 22.00, 29.50, 37.00, 44.50],
+            "XL": [12.90, 17.50, 26.50, 35.50, 44.50, 53.50]
+        };
 
-    const translations = {
-      ko: {
-        title: "보관요금 계산기(카드)",
-        resultLabel: "총 보관 요금:",
-        sizes: ["S 사이즈", "M 사이즈", "L 사이즈", "XL 사이즈"],
-        daysLabel: "보관 기간 (일):",
-        quantityLabel: "수량:",
-      },
-      en: {
-        title: "Storage Fee Calculator(Card)",
-        resultLabel: "Total Storage Fee:",
-        sizes: ["Size S", "Size M", "Size L", "Size XL"],
-        daysLabel: "Storage Period (Days):",
-        quantityLabel: "Quantity:",
-      },
-      ja: {
-        title: "保管料金計算機(カード)",
-        resultLabel: "合計保管料金:",
-        sizes: ["S サイズ", "M サイズ", "L サイズ", "XL サイズ"],
-        daysLabel: "保管期間 (日):",
-        quantityLabel: "数量:",
-      },
-      zh: {
-        title: "保管费用计算器(卡)",
-        resultLabel: "总保管费用:",
-        sizes: ["S 尺寸", "M 尺寸", "L 尺寸", "XL 尺寸"],
-        daysLabel: "保管期限 (天):",
-        quantityLabel: "数量:",
-      },
-    };
+        const dailyRate = {
+            "S": 3.20,
+            "M": 3.70,
+            "L": 5.30,
+            "XL": 6.40
+        };
 
-    function changeLanguage() {
-      const lang = document.getElementById("language").value;
-      const texts = translations[lang];
+        function calculateFee() {
+            const size = document.getElementById('size').value;
+            const days = parseInt(document.getElementById('days').value);
+            const resultDiv = document.getElementById('result');
 
-      document.getElementById("title").textContent = texts.title;
-      document.getElementById("result-label").textContent = texts.resultLabel;
+            if (!size || !days || days <= 0) {
+                resultDiv.textContent = "Please enter valid size and number of days.";
+                return;
+            }
 
-      const sizesContainer = document.getElementById("sizes");
-      sizesContainer.innerHTML = "";
+            let totalCost = 0;
 
-      ["S", "M", "L", "XL"].forEach((size, index) => {
-        const section = document.createElement("div");
-        section.className = "section";
-        section.innerHTML = `
-          <h2>${texts.sizes[index]}</h2>
-          <label>${texts.daysLabel}</label>
-          <select id="days${size}">
-            ${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}">${i + 1} Days</option>`).join("")}
-          </select>
-          <label>${texts.quantityLabel}</label>
-          <input type="number" id="quantity${size}" min="0" value="0">
-        `;
-        sizesContainer.appendChild(section);
-      });
+            if (days <= 6) {
+                totalCost = shortTermRates[size][days - 1];
+            } else {
+                totalCost = dailyRate[size] * days;
+            }
 
-      // 각 요소에 이벤트 리스너 추가
-      ["S", "M", "L", "XL"].forEach(size => {
-        document.getElementById(`days${size}`).addEventListener("change", calculateTotal);
-        document.getElementById(`quantity${size}`).addEventListener("input", calculateTotal);
-      });
-    }
-
-    function calculateTotal() {
-      let total = 0;
-
-      ["S", "M", "L", "XL"].forEach(size => {
-        const days = parseInt(document.getElementById(`days${size}`).value) || 0;
-        const quantity = parseInt(document.getElementById(`quantity${size}`).value) || 0;
-
-        if (days > 0 && days <= 6) {
-          total += prices[size][days - 1] * quantity;
-        } else if (days >= 7) {
-          total += prices[size][6] * days * quantity;
+            resultDiv.textContent = `Total Cost for ${days} day(s) (${size} size): $${totalCost.toFixed(2)}`;
         }
-      });
-
-      document.getElementById("result").textContent = `${total.toFixed(2)}$`;
-    }
-
-    document.getElementById("language").addEventListener("change", changeLanguage);
-    changeLanguage();
-  </script>
+    </script>
 </body>
 </html>
