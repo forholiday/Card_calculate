@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Item Storage Fee Calculator</title>
+    <title>Storage Fee Calculator(Card,카드)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,14 +29,22 @@
     </style>
 </head>
 <body>
-    <h1>Multi-Item Storage Fee Calculator</h1>
+    <h1 id="title">Storage Fee Calculator(credit card)</h1>
+    <label for="language-select">Select Language:</label>
+    <select id="language-select" onchange="changeLanguage()">
+        <option value="en">English</option>
+        <option value="ko">한국어</option>
+        <option value="ja">日本語</option>
+        <option value="zh">中文</option>
+    </select>
+
     <form id="calculator-form">
         <table>
             <thead>
                 <tr>
-                    <th>Size</th>
-                    <th>Quantity</th>
-                    <th>Number of Days</th>
+                    <th id="size-header">Size</th>
+                    <th id="quantity-header">Quantity</th>
+                    <th id="days-header">Number of Days</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,12 +70,47 @@
                 </tr>
             </tbody>
         </table>
-        <button type="button" onclick="calculateTotal()">Calculate Total</button>
+        <button type="button" id="calculate-button" onclick="calculateTotal()">Calculate Total</button>
     </form>
 
     <div class="result" id="result"></div>
 
     <script>
+        const translations = {
+            en: {
+                title: "Storage Fee Calculator(credit card)",
+                size: "Size",
+                quantity: "Quantity",
+                days: "Number of Days",
+                calculate: "Calculate Total",
+                totalCost: "Total Cost: $"
+            },
+            ko: {
+                title: "보관료 계산기(카드)",
+                size: "크기",
+                quantity: "수량",
+                days: "보관 일수",
+                calculate: "총 비용 계산",
+                totalCost: "총 비용: $"
+            },
+            ja: {
+                title: "保管料金計算機（クレジットカード）",
+                size: "サイズ",
+                quantity: "数量",
+                days: "日数",
+                calculate: "合計を計算する",
+                totalCost: "合計費用: $"
+            },
+            zh: {
+                title: "存储费用计算器（信用卡）",
+                size: "大小",
+                quantity: "数量",
+                days: "天数",
+                calculate: "计算总费用",
+                totalCost: "总费用: $"
+            }
+        };
+
         const shortTermRates = {
             "S": [7.30, 10.00, 15.25, 20.50, 25.75, 31.00],
             "M": [8.40, 11.50, 17.50, 23.50, 29.50, 35.50],
@@ -81,6 +124,17 @@
             "L": 5.30,
             "XL": 6.40
         };
+
+        function changeLanguage() {
+            const lang = document.getElementById("language-select").value;
+            const translation = translations[lang];
+
+            document.getElementById("title").textContent = translation.title;
+            document.getElementById("size-header").textContent = translation.size;
+            document.getElementById("quantity-header").textContent = translation.quantity;
+            document.getElementById("days-header").textContent = translation.days;
+            document.getElementById("calculate-button").textContent = translation.calculate;
+        }
 
         function calculateFee(size, quantity, days) {
             if (days <= 0 || quantity <= 0) return 0;
@@ -107,7 +161,9 @@
                 totalCost += calculateFee(size, quantity, days);
             });
 
-            document.getElementById('result').textContent = `Total Cost: $${totalCost.toFixed(2)}`;
+            const lang = document.getElementById("language-select").value;
+            const translation = translations[lang];
+            document.getElementById('result').textContent = `${translation.totalCost}${totalCost.toFixed(2)}`;
         }
     </script>
 </body>
